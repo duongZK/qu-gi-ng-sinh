@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎄 Quà Giáng Sinh May Mắn 🎁</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow: hidden; 
+        }
+
+        /* === CẤU TRÚC MÀN HÌNH VÀ HIỆU ỨNG CHUYỂN CẢNH === */
+        .screen {
+            position: absolute;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            min-height: 400px;
+            
+            opacity: 0;
+            transform: translateX(100%); 
+            pointer-events: none;
+            
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .screen.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+            position: relative; 
+        }
+
+        .screen.inactive-left {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+
+        /* --- TRANG TRÍ CHUNG --- */
+        .christmas-decor {
+            font-size: 30px;
+            color: #c0392b;
+            margin: 10px 0;
+        }
+        .christmas-decor .fa-snowflake {
+            color: #3498db;
+        }
+
+        /* --- MÀN HÌNH CHÀO MỪNG --- */
+        #welcome-screen {
+            background: linear-gradient(180deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        #welcome-screen h1 {
+            color: #f1c40f;
+            font-size: 2.5em;
+            text-shadow: 2px 2px #c0392b;
+        }
+
+        #start-button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        #start-button:hover {
+            background-color: #2ecc71;
+        }
+        
+        /* --- MÀN HÌNH GAME --- */
+        #game-screen {
+            background-color: #ecf0f1;
+        }
+        
+        #game-screen h2 {
+            color: #e74c3c;
+        }
+
+        #attempts-left {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: #34495e;
+        }
+
+        .christmas-tree {
+            font-size: 5em;
+            color: #27ae60;
+            margin: 20px 0;
+        }
+
+        #present-boxes {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .present-box {
+            font-size: 3em;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            margin: 10px;
+            padding: 10px;
+            border: 3px solid #e74c3c;
+            border-radius: 5px;
+            background-color: #f1c40f;
+            width: 100px;
+            height: 100px;
+            line-height: 80px;
+        }
+
+        .present-box:hover:not(.disabled) {
+            transform: scale(1.1);
+        }
+
+        .present-box.disabled {
+            opacity: 0.8; /* Giảm độ mờ để nhìn rõ quà hơn */
+            cursor: default;
+            font-size: 0.8em;
+            line-height: normal;
+            padding-top: 25px;
+        }
+        /* Style cho quà đặc biệt (500k) */
+        .present-box[data-prize-type="money"] {
+             border-color: #f1c40f;
+             background-color: #27ae60; /* Màu xanh lá nổi bật cho tiền */
+             color: white;
+        }
+
+        #result-message {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        /* --- MÀN HÌNH KẾT THÚC --- */
+        #end-screen {
+            background: linear-gradient(180deg, #27ae60, #2ecc71);
+            color: white;
+        }
+        
+        #end-screen h2 {
+            color: #f1c40f;
+            font-size: 2.5em;
+        }
+        .end-christmas-decor {
+            font-size: 40px;
+            color: white;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="welcome-screen" class="screen active">
+        <div class="christmas-decor">
+            <i class="fas fa-holly-berry"></i>
+            <i class="fas fa-snowflake"></i>
+        </div>
+        
+
+[Image of a festive Christmas greeting with snowflakes and gifts]
+
+        <div class="content">
+            <h1>CHÚC MỪNG GIÁNG SINH! 🎅</h1>
+            <button id="start-button">NHẬN QUÀ NGAY</button>
+        </div>
+        <div class="christmas-decor">
+            <i class="fas fa-snowflake"></i>
+            <i class="fas fa-gift"></i>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <h2>🎉 HÃY CHỌN MỘT HỘP QUÀ MAY MẮN! 🎉</h2>
+        <div id="attempts-left">Bạn còn **3** lần mở quà.</div>
+
+        <div class="christmas-tree">
+            <i class="fas fa-tree"></i>
+        </div>
+        
+        <div id="present-boxes">
+            <div class="present-box" data-box-id="1">🎁</div>
+            <div class="present-box" data-box-id="2">🎁</div>
+            <div class="present-box" data-box-id="3">🎁</div>
+            <div class="present-box" data-box-id="4">🎁</div>
+            <div class="present-box" data-box-id="5">🎁</div>
+            <div class="present-box" data-box-id="6">🎁</div>
+        </div>
+
+        <div id="result-message"></div>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <div class="end-christmas-decor">
+            <i class="fas fa-gift"></i>
+            <i class="fas fa-holly-berry"></i>
+        </div>
+        
+        <h2>CẢM ƠN BẠN ĐÃ THAM GIA!</h2>
+        <p>Chúc bạn một mùa Giáng sinh an lành và ấm áp! 💖</p>
+        <div class="end-christmas-decor">
+            <i class="fas fa-snowflake"></i>
+            <i class="fas fa-tree"></i>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Lấy các phần tử DOM
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const gameScreen = document.getElementById('game-screen');
+            const endScreen = document.getElementById('end-screen');
+            const startButton = document.getElementById('start-button');
+            const presentBoxes = document.querySelectorAll('.present-box');
+            const attemptsLeftElement = document.getElementById('attempts-left');
+            const resultMessage = document.getElementById('result-message');
+
+            let attempts = 3; // Số lần mở quà giới hạn là 3
+            
+            // Danh sách tất cả 6 phần quà theo tỉ lệ
+            const allPrizes = [
+                // 10%
+                { name: "500.000 VNĐ 🤑", weight: 10, color: '#27ae60', type: 'money' }, 
+                
+                // 90% còn lại chia đều cho 5 món quà
+                { name: "Một cái tát 🤏", weight: 18, color: '#e74c3c' },
+                { name: "Chúc may mắn! ✨", weight: 18, color: '#3498db' },
+                { name: "Một cái ôm 🤗", weight: 18, color: '#9b59b6' },
+                { name: "Bạn đã mất 100k 🧋", weight: 18, color: '#f39c12' },
+                { name: "Bạn đã mất 5s cuộc đời của mình😘", weight: 18, color: '#e67e22' }
+            ];
+
+            // Mảng chứa các phần quà đã được phân bổ cho 6 hộp quà
+            let boxPrizes = [];
+
+            // 2. Hàm chuyển màn hình có hiệu ứng trượt
+            function switchScreen(fromScreen, toScreen) {
+                fromScreen.classList.remove('active');
+                fromScreen.classList.add('inactive-left');
+
+                setTimeout(() => {
+                    fromScreen.classList.remove('inactive-left'); 
+                    toScreen.classList.add('active');
+                }, 100); 
+            }
+
+            // 3. Hàm chọn quà ngẫu nhiên theo tỉ lệ (Weighted Random Selection)
+            function selectRandomGift(availableGifts) {
+                let totalWeight = availableGifts.reduce((sum, gift) => sum + gift.weight, 0);
+                let randomNum = Math.random() * totalWeight; 
+                let cumulativeWeight = 0;
+
+                for (let i = 0; i < availableGifts.length; i++) {
+                    cumulativeWeight += availableGifts[i].weight;
+                    if (randomNum <= cumulativeWeight) {
+                        // Trả về cả món quà và chỉ mục của nó trong mảng availableGifts
+                        return { prize: availableGifts[i], index: i };
+                    }
+                }
+                return { prize: availableGifts[0], index: 0 }; 
+            }
+
+            // 4. Hàm GÁN QUÀ vào các hộp (đảm bảo không lặp và theo tỉ lệ)
+            function setupBoxPrizes() {
+                let availablePrizes = [...allPrizes]; // Tạo bản sao để rút quà ra
+                let prizeMapping = new Array(presentBoxes.length);
+
+                // Gán quà cho từng hộp quà một
+                presentBoxes.forEach((box, index) => {
+                    if (availablePrizes.length > 0) {
+                        const result = selectRandomGift(availablePrizes);
+                        
+                        prizeMapping[index] = result.prize;
+                        
+                        // Loại bỏ phần quà đã chọn khỏi danh sách có thể chọn tiếp theo
+                        availablePrizes.splice(result.index, 1); 
+                        
+                        // Lưu index quà vào box (không dùng nữa, nhưng giữ lại)
+                        // box.dataset.prizeIndex = index; 
+                    }
+                });
+                // Sau khi gán, xáo trộn lại mảng ánh xạ để đảm bảo tính ngẫu nhiên của vị trí
+                // (Mặc dù việc gán theo index 0-5 đã là ngẫu nhiên do chọn random trước đó)
+                return prizeMapping.sort(() => Math.random() - 0.5);
+            }
+
+            // 5. Khởi tạo
+            boxPrizes = setupBoxPrizes(); // Chạy gán quà khi tải trang
+
+            // 6. Xử lý nút BẮT ĐẦU
+            startButton.addEventListener('click', () => {
+                switchScreen(welcomeScreen, gameScreen);
+                updateAttemptsDisplay();
+            });
+
+            // 7. Hàm cập nhật số lần mở quà
+            function updateAttemptsDisplay() {
+                attemptsLeftElement.innerHTML = `Bạn còn **${attempts}** lần mở quà.`;
+            }
+
+            // 8. Xử lý khi ấn vào hộp quà
+            presentBoxes.forEach((box, index) => {
+                // Lưu index của quà đã được gán vào data attribute của hộp
+                box.dataset.prizeIndex = index; 
+
+                box.addEventListener('click', (event) => {
+                    const clickedBox = event.currentTarget;
+                    const prizeIndex = parseInt(clickedBox.dataset.prizeIndex);
+
+                    if (attempts > 0 && !clickedBox.classList.contains('disabled')) {
+                        attempts--;
+                        updateAttemptsDisplay();
+                        
+                        // Lấy phần quà đã được gán cố định cho hộp này
+                        const selectedGift = boxPrizes[prizeIndex];
+                        
+                        // Hiển thị kết quả
+                        resultMessage.style.color = selectedGift.color;
+                        resultMessage.textContent = `Bạn đã nhận được: ${selectedGift.name}`;
+
+                        clickedBox.classList.add('disabled');
+                        
+                        // Nếu là tiền, thêm style đặc biệt
+                        if(selectedGift.type === 'money') {
+                            clickedBox.dataset.prizeType = 'money';
+                        }
+
+                        // Hiển thị tên quà ngắn trong hộp (loại bỏ emoji và nội dung thừa)
+                        clickedBox.textContent = selectedGift.name.replace(/\s*\(.*\)\s*|\s*[\uD800-\uDBFF\uDC00-\uDFFF]*/g, '').trim(); 
+                        
+                        // Kiểm tra nếu hết lượt
+                        if (attempts === 0) {
+                            // Vô hiệu hóa tất cả các hộp quà còn lại
+                            presentBoxes.forEach(b => {
+                                if (!b.classList.contains('disabled')) {
+                                    b.classList.add('disabled');
+                                }
+                            });
+                            
+                            // Chờ 3 giây rồi chuyển sang màn hình KẾT THÚC
+                            setTimeout(() => {
+                                switchScreen(gameScreen, endScreen);
+                            }, 3000); 
+                        }
+                    } else if (attempts === 0) {
+                        alert('Đã hết lượt mở quà của bạn! Cảm ơn và Chúc mừng Giáng Sinh! 🎄');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
